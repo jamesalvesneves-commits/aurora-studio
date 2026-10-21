@@ -1,0 +1,30 @@
+name: Build AURORA Studio
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup MSVC
+        uses: microsoft/setup-msbuild@v2
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version: '6.7.*'
+          arch: 'win64_msvc2019_64'
+
+      - name: Build Cockpit (placeholder)
+        run: echo "Build step will be implemented when Cockpit source is added"
+
+      - name: Package installer (placeholder)
+        run: echo "Inno Setup packaging will be implemented when installer config is added"
