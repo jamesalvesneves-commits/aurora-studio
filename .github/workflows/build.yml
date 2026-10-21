@@ -1,30 +1,24 @@
-name: Build AURORA Studio
-
+name: Windows build and smoke test
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
   workflow_dispatch:
-
+permissions:
+  contents: read
 jobs:
-  build:
-    runs-on: windows-latest
+  cockpit:
+    runs-on: windows-2022
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup MSVC
-        uses: microsoft/setup-msbuild@v2
-
-      - name: Install Qt
-        uses: jurplel/install-qt-action@v4
+      - uses: actions/checkout@v4
+      - uses: jurplel/install-qt-action@v4
         with:
-          version: '6.7.*'
-          arch: 'win64_msvc2019_64'
-
-      - name: Build Cockpit (placeholder)
-        run: echo "Build step will be implemented when Cockpit source is added"
-
-      - name: Package installer (placeholder)
-        run: echo "Inno Setup packaging will be implemented when installer config is added"
+          version: '6.7.3'
+          arch: win64_msvc2019_64
+      - name: Configure
+        run: cmake -S . -B build -A x64
+      - name: Compile
+        run: cmake --build build --config Release
+      - name: Test
+        run: ctest --test-dir build -C Release --output-on-failure
