@@ -1,0 +1,56 @@
+name: Report audited Ardour links
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/report-ardour-links.yml']
+  workflow_run:
+    workflows: ['Audit official Ardour source links']
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  report:
+    if: github.event_name != 'workflow_run' || (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push')
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - name: Read audit evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: ardour-source-audit
+          path: audit
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id || '39703948955' }}
+      - name: Report official published links
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $report = Get-Content -Raw audit/links.json | ConvertFrom-Json
+          $lines = [System.Collections.Generic.List[string]]::new()
+          $lines.Add('# Inventário de links oficiais do Ardour')
+          $lines.Add('Inspeção de links apenas. Não comprova versão, licença, hash ou segurança de executável. Nenhum instalador é baixado ou executado nesta etapa.')
+          $count = 0
+          foreach ($page in $report.pages) {
+            $lines.Add('')
+            $lines.Add('Página: ' + [System.Net.WebUtility]::HtmlEncode([string]$page.requested_url))
+            foreach ($link in $page.links) {
+              $uri = [Uri]::new([string]$link.url, [UriKind]::Absolute)
+              if ($uri.Scheme -eq 'https' -and $uri.Host -eq 'nightly.ardour.org') {
+                $safe = [System.Net.WebUtility]::HtmlEncode($uri.AbsoluteUri)
+                $lines.Add('<pre>' + $safe + '</pre>')
+                $count++
+              }
+            }
+          }
+          if ($count -eq 0) { throw 'No official HTTPS links in audit evidence' }
+          $lines | Out-File -FilePath $env:GITHUB_STEP_SUMMARY -Encoding utf8 -Append
+          $lines | Set-Content -Path official-links.txt -Encoding utf8
+      - name: Preserve readable inventory
+        uses: actions/upload-artifact@v4
+        with:
+          name: ardour-official-links-report
+          path: official-links.txt
+          if-no-files-found: error
+          retention-days: 14
