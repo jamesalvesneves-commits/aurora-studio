@@ -1,0 +1,62 @@
+name: Inspect pinned Ardour package
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/inspect-ardour-package.yml']
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - name: Verify bytes and inspect static metadata
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force evidence | Out-Null
+          $package = Join-Path $env:RUNNER_TEMP 'aurora-ardour-inspection.exe'
+          $url = 'https://nightly.ardour.org/d/A_WIN_x86_64_FREE_DBG/Ardour-9.8.230-demo-dbg-w64-Setup.exe'
+          $expected = '12331c428d78c06e02e0d08ab11526bc7c54777f2da1a5548974b4d210ac11e1'
+          $report = [ordered]@{url=$url; expected_sha256=$expected; expected_hash_origin='Previous acquisition reported by user; not an independently authenticated publisher hash'; status='started'; installer_executed=$false; payload_extracted=$false}
+          try {
+            & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 180 --max-filesize 629145600 --output $package $url
+            if ($LASTEXITCODE -ne 0) { throw 'Download failed' }
+            $hash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
+            $report.actual_sha256 = $hash
+            $report.size_bytes = (Get-Item -LiteralPath $package).Length
+            if ($hash -ne $expected) { throw 'Package changed or download differs; inspection blocked' }
+            if ($report.size_bytes -ne 365484183) { throw 'Unexpected package size' }
+            $signature = Get-AuthenticodeSignature -LiteralPath $package
+            $report.authenticode_status = [string]$signature.Status
+            $report.signer_subject = if ($signature.SignerCertificate) { $signature.SignerCertificate.Subject } else { $null }
+            $report.signature_status_message = $signature.StatusMessage
+            $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+            if (!(Test-Path -LiteralPath $sevenZip)) { throw '7-Zip unavailable; do not execute installer as fallback' }
+            $report.inspector_version = (Get-Item -LiteralPath $sevenZip).VersionInfo.FileVersion
+            $listing = & $sevenZip l -slt -- $package 2>&1
+            $listingExit = $LASTEXITCODE
+            $listing | Out-File evidence/archive-listing.txt -Encoding utf8
+            $report.archive_listing_exit_code = $listingExit
+            if ($listingExit -ne 0) { throw 'Archive listing failed; format not established' }
+            $report.status = 'static_inspection_completed_not_execution_approved'
+            @('## Archive metadata excerpt', '```text') + @($listing | Select-Object -First 100) + @('```') | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          } catch {
+            $report.status = 'failed'
+            $report.error = $_.Exception.Message
+            throw
+          } finally {
+            Remove-Item -LiteralPath $package -Force -ErrorAction SilentlyContinue
+            $json = $report | ConvertTo-Json -Depth 5
+            $json | Set-Content evidence/static-inspection.json -Encoding utf8
+            @('## Static inspection report', '```json', $json, '```', 'No installer or payload executed. Listing does not prove payload architecture or safety.') | Out-File $env:GITHUB_STEP_SUMMARY -Append -Encoding utf8
+          }
+      - name: Preserve reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ardour-static-inspection
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 14
