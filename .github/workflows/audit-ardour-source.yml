@@ -1,0 +1,75 @@
+name: Audit official Ardour source links
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/audit-ardour-source.yml'
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Inspect official published links without downloading installers
+        shell: python
+        run: |
+          import datetime, hashlib, json, os
+          from html.parser import HTMLParser
+          from pathlib import Path
+          from urllib.parse import urljoin, urlparse
+          from urllib.request import Request, urlopen, build_opener, HTTPRedirectHandler
+          class OfficialOnly(HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  parsed = urlparse(newurl)
+                  if parsed.scheme != 'https' or parsed.hostname != 'nightly.ardour.org':
+                      raise RuntimeError('Redirect outside approved origin blocked')
+                  return super().redirect_request(req, fp, code, msg, headers, newurl)
+          class Links(HTMLParser):
+              def __init__(self):
+                  super().__init__()
+                  self.items = []
+              def handle_starttag(self, tag, attrs):
+                  if tag == 'a':
+                      href = dict(attrs).get('href')
+                      if href:
+                          self.items.append(href)
+          output = Path('audit')
+          output.mkdir(exist_ok=True)
+          opener = build_opener(OfficialOnly())
+          reports = []
+          for index, url in enumerate(['https://nightly.ardour.org/', 'https://nightly.ardour.org/?list=free']):
+              with opener.open(Request(url, headers={'User-Agent': 'AURORA-source-audit/0.1'}), timeout=30) as response:
+                  raw = response.read(2000001)
+                  if len(raw) > 2000000:
+                      raise RuntimeError('Page size limit exceeded')
+                  final_url = response.url
+                  charset = response.headers.get_content_charset() or 'utf-8'
+              text = raw.decode(charset, errors='replace')
+              (output / f'page-{index}.html').write_bytes(raw)
+              parser = Links()
+              parser.feed(text)
+              links = []
+              for href in sorted(set(parser.items)):
+                  absolute = urljoin(final_url, href)
+                  parsed = urlparse(absolute)
+                  links.append({'url': absolute, 'official_https_origin': parsed.scheme == 'https' and parsed.hostname == 'nightly.ardour.org'})
+              reports.append({'requested_url': url, 'final_url': final_url, 'page_sha256': hashlib.sha256(raw).hexdigest(), 'links': links})
+          report = {'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'status': 'link inspection only; no installer downloaded or executed', 'pages': reports}
+          (output / 'links.json').write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding='utf-8')
+          if not any(page['links'] for page in reports):
+              raise RuntimeError('No links found; manual investigation required')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+              summary.write('Official page link inventory saved as ardour-source-audit. Page hashes are not installer hashes. No package selected, downloaded, executed or validated.\n')
+      - name: Preserve inspection evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ardour-source-audit
+          path: audit/
+          if-no-files-found: warn
+          retention-days: 14
