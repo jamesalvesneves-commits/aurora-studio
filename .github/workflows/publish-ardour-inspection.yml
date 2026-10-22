@@ -1,0 +1,39 @@
+name: Publish Ardour inspection evidence
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download static inspection artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ardour-static-inspection
+          run-id: 39705179514
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: evidence
+      - name: Validate evidence files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s evidence/static-inspection.json
+          test -s evidence/archive-listing.txt
+          python3 -m json.tool evidence/static-inspection.json > /dev/null
+          printf 'Evidence files present and JSON is valid.\n'
+      - name: Commit evidence
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add evidence/static-inspection.json evidence/archive-listing.txt
+          if git diff --cached --quiet; then
+            echo 'No changes to commit.'
+          else
+            git commit -m 'Publish Ardour static inspection evidence'
+            git push
+          fi
