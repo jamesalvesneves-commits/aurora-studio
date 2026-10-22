@@ -1,0 +1,54 @@
+name: Verify development package
+on:
+  workflow_run:
+    workflows: ['Windows build and smoke test']
+    types: [completed]
+permissions:
+  contents: read
+  actions: read
+jobs:
+  verify:
+    if: github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && github.event.workflow_run.event == 'push'
+    runs-on: windows-2022
+    timeout-minutes: 5
+    steps:
+      - name: Download package from completed build
+        uses: actions/download-artifact@v4
+        with:
+          name: aurora-cockpit-development-windows-x64
+          path: package
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+      - name: Verify integrity and launch
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $root = (Resolve-Path package).Path
+          $manifest = Join-Path $root 'SHA256SUMS.txt'
+          if (!(Test-Path $manifest)) { throw 'Missing hash manifest' }
+          $entries = @(Get-Content $manifest)
+          if ($entries.Count -eq 0) { throw 'Empty hash manifest' }
+          foreach ($line in $entries) {
+            if ($line -notmatch '^([A-Fa-f0-9]{64})  (.+)$') { throw 'Invalid hash entry' }
+            $expected = $Matches[1]
+            $path = [IO.Path]::GetFullPath((Join-Path $root $Matches[2]))
+            if (!$path.StartsWith($root + [IO.Path]::DirectorySeparatorChar, [StringComparison]::OrdinalIgnoreCase)) { throw 'Unsafe manifest path' }
+            if (!(Test-Path -LiteralPath $path -PathType Leaf)) { throw 'Missing package file' }
+            if ((Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash -ne $expected) { throw 'Hash mismatch' }
+          }
+          if (!(Test-Path (Join-Path $root 'platforms/qwindows.dll'))) { throw 'Missing Windows Qt platform plugin' }
+          Remove-Item Env:QT_PLUGIN_PATH -ErrorAction SilentlyContinue
+          Remove-Item Env:QT_QPA_PLATFORM_PLUGIN_PATH -ErrorAction SilentlyContinue
+          Remove-Item Env:QTDIR -ErrorAction SilentlyContinue
+          $env:QT_QPA_PLATFORM = 'windows'
+          $env:PATH = "$env:SystemRoot\System32;$env:SystemRoot"
+          $process = Start-Process -FilePath (Join-Path $root 'AURORA.exe') -ArgumentList '--smoke-test' -WorkingDirectory $root -PassThru
+          if (!$process.WaitForExit(30000)) {
+            $process.Kill()
+            throw 'Packaged cockpit launch timed out'
+          }
+          $process.Refresh()
+          if ($process.ExitCode -ne 0) { throw "Packaged cockpit failed: $($process.ExitCode)" }
+          "Verified source commit: ${{ github.event.workflow_run.head_sha }}" >> $env:GITHUB_STEP_SUMMARY
+          'Hashes verified; packaged cockpit opened and exited successfully on a separate Windows runner without installing Qt in this job.' >> $env:GITHUB_STEP_SUMMARY
+          'This is not a clean end-user Windows installation test, installer validation, or musical engine validation.' >> $env:GITHUB_STEP_SUMMARY
