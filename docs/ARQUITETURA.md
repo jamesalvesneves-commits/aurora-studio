@@ -1,138 +1,53 @@
-# Arquitetura do AURORA Studio
+# Arquitetura consolidada do AURORA Studio
 
-## Definição do produto
+Revisão: 21 de outubro de 2026. Substitui as promessas não verificadas da versão anterior deste documento. Documento de requisitos e decisões, não declaração de funcionalidades entregues. AGENTS.md permanece obrigatório.
 
-AURORA Studio é um aplicativo Windows profissional com duas camadas de interface:
+## Contrato de entrega
+Aplicativo Windows com Cockpit próprio, instalação gráfica e atalho na área de trabalho. O usuário final não cria fontes, não compila, não prepara ambientes e não executa comandos. Desenvolvimento e testes ficam no repositório. O objetivo é um estúdio profissional integrado; etapas parciais não são o produto completo.
 
-1. **Cockpit Central AURORA** — interface gráfica única, própria, onde o usuário escreve comandos em texto, acompanha a produção em tempo real, vê o estado do projeto, dispara ações e acompanha o progresso.
-2. **Interfaces originais dos componentes** — Ardour, ACE-Step e Demucs continuam existindo com suas interfaces nativas, abertas em janelas separadas, acessíveis por botões no Cockpit.
+## Equipamento-alvo
+Windows 11 Pro; Xeon E5-2630 v4; GTX 1660 Super 6 GB; 32 GB RAM; NVMe 400 GB; NVMe 80 GB; HDD SATA 500 GB. Não presumir letras de unidade, espaço livre, consumo nem desempenho. Identificar volumes antes de atribuir projetos, cache e backup.
 
-O usuário trabalha de duas formas complementares, sempre dentro do mesmo projeto:
-- Pelo Cockpit, escrevendo em linguagem natural, sem tocar em nenhum programa individual.
-- Pela interface original de qualquer componente, clicando no botão correspondente no Cockpit, para edição manual especializada.
+## Responsabilidades
+- Cockpit C++/Qt: interface própria, projetos, tarefas, recursos, diagnóstico e acesso a janelas externas.
+- Ollama local: interpretar pedidos e propor ações estruturadas. Modelo e versão somente serão fixados após validação.
+- Executor AURORA: validar ações cadastradas, controlar fila, recursos, cancelamento e resultados. Nunca executar comandos arbitrários produzidos pelo modelo.
+- Ardour: autoridade da sessão musical e das edições manuais.
+- SQLite: autoridade dos metadados, tarefas, artefatos e vínculos do AURORA; não substitui a sessão Ardour.
+- ACE-Step: geração e transformação dentro das capacidades integradas e verificadas.
+- Demucs: separação por adaptador isolado; painel próprio no Cockpit, sem presumir GUI nativa.
+- Adaptadores Python: ambientes privados compatíveis com cada motor, sem pressupor um ambiente compartilhado.
 
-As duas formas operam sobre o mesmo projeto, a mesma sessão e os mesmos arquivos, com sincronização automática.
+## Interface e projeto
+Uma janela central própria, com projetos, módulos, comandos, acompanhamento, tarefas e estado. Janelas originais disponíveis são abertas separadamente; não serão embutidas por manipulação de janelas externas. Não usar anexos visuais da conversa como requisitos.
+Projeto único significa sessão Ardour, áudios, stems, prompts, parâmetros, histórico e vínculos reunidos logicamente. Não significa formato interno comum a todos os programas. Monitor de arquivos detecta alterações em arquivos, não representa observação integral da edição musical. Não editar XML de sessão aberta.
 
-## Decisão de engenharia fixa
+## Tempo real
+Acompanhamento de eventos e progresso real durante processamento. Incorporação de áudio após conclusão e confirmação. Não prometer geração instantânea, simultaneidade de todos os motores nem reprodução ininterrupta durante qualquer alteração. Não exibir progresso fictício.
 
-As janelas do Ardour, ACE-Step e Demucs **não são embutidas visualmente** dentro do Cockpit. Elas são abertas como janelas separadas, gerenciadas e sincronizadas pelo Cockpit. Embutir janelas de terceiros quebraria isolamento, DPI e estabilidade.
+## Instalação e distribuição
+Entrega final prevista: AURORAStudio-Setup.exe e launcher AURORA.exe. O instalador deve obter e validar componentes, modelos e dependências; verificar espaço; retomar downloads; reparar falhas; criar atalho; preservar projetos conforme política explícita.
+Manifesto obrigatório com versões, origens, hashes, licenças e testes. Chocolatey e git clone não são soluções presumidas de isolamento e distribuição. Não exigir Git, compiladores nem Python global do usuário. Ferramenta e versão do instalador dependem de validação antes de congelamento. Assinatura exige certificado e processo próprios, ainda não disponíveis como entrega.
+Origem do binário Ardour, fontes correspondentes e licenças das dependências são bloqueios de distribuição. Não contornar autenticação nem incluir credenciais.
 
-## Componentes do barramento
+## Segurança
+Motores vinculados à interface local; nenhuma exposição à rede por padrão. Processamento musical local como requisito; verificar tráfego e desabilitar caminhos de nuvem. Operações destrutivas exigem confirmação. Logs não devem incluir segredos. Downloads e atualizações precisam de integridade verificada.
 
-- **Project State Database** — SQLite, fonte única de verdade do projeto.
-- **File Watcher** — monitora a pasta do projeto e detecta alterações feitas por qualquer componente.
-- **Event Bus** — publica eventos como "stem gerado", "faixa importada", "mixagem salva", "erro".
-- **Ardour Bridge** — comunica-se com o Ardour via OSC e scripts Lua.
-- **ACE-Step Bridge** — controla geração, edição e regeneração.
-- **Demucs Bridge** — controla separação de stems.
-- **Ollama Orchestrator** — interpreta texto do usuário e emite comandos aos bridges.
+## Validação e bloqueios
+Ardour: OSC/Lua são candidatos documentados; acionar scripts externamente, importar e retornar estado requer protótipo. Ver docs/ARDOUR_BRIDGE.md.
+ACE-Step: API, ambiente Windows e memória da GTX precisam de verificação na versão escolhida; não garantir funcionamento por VRAM nominal.
+Demucs: fixar revisão e dependências testadas; considerar manutenção limitada.
+Ollama: validar ações estruturadas, modelo e consumo; não fixar 8B por estimativa.
+Plugins e auxiliares: seleção final ainda bloqueada por compatibilidade Windows, licenças e testes. Não declarar o stack completo antes dessa seleção.
 
-## Projeto único
+## Marcos de execução
+1. Consolidar documentação e matriz de requisitos.
+2. Provar ponte Ardour, distribuição e viabilidade dos motores.
+3. Implementar persistência e executor validado.
+4. Integrar motores e Cockpit incrementalmente.
+5. Construir instalador completo e recuperação.
+6. Homologar no setup-alvo e produzir manual correspondente.
+Cada marco possui evidência própria. CI verde não comprova qualidade musical nem homologação. Não avançar sobre dependência bloqueante como se estivesse resolvida.
 
-Todo trabalho acontece dentro de uma única pasta de projeto, por exemplo:
-
-```
-C:\AURORA Studio\Projects\Minha Balada\
-```
-
-Dentro dela, gerenciados automaticamente:
-- Sessão do Ardour.
-- Áudio gerado pelo ACE-Step.
-- Stems gerados pelo Demucs.
-- Letras e prompts.
-- Histórico de versões.
-- Estado do projeto no SQLite.
-
-Quando o ACE-Step gera uma música, o arquivo é salvo na pasta e o Event Bus avisa o Cockpit e o Ardour Bridge, que importa automaticamente o áudio como nova faixa na sessão aberta.
-
-Quando o Demucs separa a faixa, os stems são salvos na mesma pasta e importados automaticamente como faixas separadas no Ardour.
-
-Quando o usuário edita algo diretamente no Ardour, o File Watcher detecta a mudança e atualiza o estado no Cockpit.
-
-## Interface do Cockpit Central
-
-Regiões fixas:
-- Barra de projetos — nome do projeto, botão novo, abrir, salvar, histórico.
-- Barra de módulos — botões grandes: ACE-Step, Demucs, Ardour, Ollama, Biblioteca.
-- Área de comando por texto.
-- Tela central de execução — linha do tempo, faixas ativas, stems, status de geração e progresso.
-- Painel de tarefas — fila, progresso, erros e botão cancelar.
-- Painel de status — estado de cada componente (online, ocupado, erro).
-
-Cada botão de módulo:
-- Clique simples — abre a interface original daquele componente em janela separada, já apontada para o projeto atual.
-- Clique longo ou botão "status" — mostra o estado daquele componente no Cockpit, sem abrir janela.
-
-## Instalação
-
-Instalador único `AURORAStudio-Setup.exe`, gerado com Inno Setup 7, assinado com Authenticode.
-
-Regras fixas de instalação:
-- Ollama — instalado via Chocolatey (`choco install ollama`).
-- Git — instalado via Chocolatey.
-- Python runtime privado — instalado via Chocolatey, versão fixa, isolado dentro da pasta do AURORA.
-- ACE-Step — obtido por `git clone` com tag fixa, dependências instaladas no ambiente Python privado.
-- Demucs — obtido por `git clone` com tag fixa, dependências instaladas no ambiente Python privado.
-- Ardour — baixado do site oficial e instalado silenciosamente.
-- Modelos — baixados das fontes oficiais, com hash verificado.
-
-Todos os passos executam internamente, sem mostrar terminal ao usuário. O usuário vê apenas uma tela de progresso com nome da etapa e barra.
-
-## Estrutura de pastas do produto instalado
-
-```
-C:\AURORA Studio\
-  App\          — Cockpit Central e runtime Qt
-  Engines\
-    Ollama\
-    ACE-Step\
-    Demucs\
-    Ardour\
-  Models\
-  Projects\
-  Library\
-  Logs\
-  Cache\
-  Backups\
-```
-
-Discos:
-- SSD 400 GB — disco principal.
-- SSD 80 GB — cache.
-- HD 500 GB — backup e exportação.
-
-## Sincronização com o Ardour
-
-Dois canais complementares:
-- OSC — comandos em tempo real (play, stop, seleção de faixa, transporte).
-- Sessão XML + scripts Lua — criação de faixas, importação de áudio e salvamento estruturado.
-
-## Segurança e integridade
-
-- Todos os downloads com hash verificado.
-- Instalador e executável assinados com Authenticode.
-- Nenhum áudio ou projeto sai do computador.
-- Internet usada apenas para download de componentes e atualizações.
-- Chocolatey instalado pelo próprio instalador, se não existir, sem intervenção do usuário.
-
-## Limites honestos
-
-- Janelas dos componentes permanecem separadas, gerenciadas pelo Cockpit — não embutidas visualmente.
-- GTX 1660 Super (6 GB VRAM) limita Ollama a modelos 7B/8B Q4 e o ACE-Step 1.5 (menos de 4 GB VRAM); os dois não rodam simultaneamente com folga — o orquestrador gerencia a liberação de VRAM.
-- Sincronização em tempo real com Ardour via OSC/Lua no Windows é a área de maior risco técnico e será validada primeiro.
-
-## Ordem de construção
-
-1. Repositório GitHub com estrutura e CI.
-2. Cockpit Central em Qt.
-3. Barramento de Projeto e SQLite.
-4. Integração com Ollama.
-5. Integração com ACE-Step.
-6. Integração com Demucs.
-7. Ardour Bridge com OSC e Lua.
-8. File Watcher e sincronização.
-9. Instalador Inno Setup com Chocolatey e pull.
-10. Testes no setup-alvo.
-11. Assinatura, empacotamento e manual.
-
-Cada etapa só é considerada concluída quando está compilada, testada e incluída no instalador.
+## Estado
+Há fontes iniciais e workflows; integrações e instalador final não são declarados concluídos neste documento. Resultados de CI devem ser vinculados ao commit e à execução observada. Esta revisão não constitui novo teste.
