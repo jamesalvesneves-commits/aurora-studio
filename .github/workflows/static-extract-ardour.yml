@@ -12,48 +12,65 @@ jobs:
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force evidence, extracted | Out-Null
+          $ProgressPreference = 'SilentlyContinue'
+          New-Item -ItemType Directory -Force -Path evidence, extracted | Out-Null
           $package = Join-Path $env:RUNNER_TEMP 'aurora-ardour-inspection.exe'
           $url = 'https://nightly.ardour.org/d/A_WIN_x86_64_FREE_DBG/Ardour-9.8.230-demo-dbg-w64-Setup.exe'
           $expected = '12331c428d78c06e02e0d08ab11526bc7c54777f2da1a5548974b4d210ac11e1'
-          & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 240 --max-filesize 629145600 --output $package $url
-          if ($LASTEXITCODE -ne 0) { throw 'Download failed' }
-          $hash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($hash -ne $expected) { throw 'SHA-256 mismatch; extraction blocked' }
-          if ((Get-Item -LiteralPath $package).Length -ne 365484183) { throw 'Unexpected size; extraction blocked' }
-          $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
-          if (!(Test-Path -LiteralPath $sevenZip)) { throw '7-Zip unavailable' }
-          & $sevenZip x -y -o"$PWD/extracted" -- $package | Out-File evidence/extraction-log.txt -Encoding utf8
-          if ($LASTEXITCODE -ne 0) { throw 'Extraction failed' }
-          $report = [ordered]@{
-            package_sha256 = $hash
-            package_size_bytes = 365484183
-            installer_executed = $false
-            extraction_completed = $true
-            files = @()
-          }
-          $targets = Get-ChildItem extracted -Recurse -File -Include *.exe,*.dll | Select-Object -First 200
-          foreach ($file in $targets) {
-            $versionInfo = $file.VersionInfo
-            $report.files += [ordered]@{
-              path = $file.FullName.Substring((Get-Item extracted).FullName.Length + 1)
-              size_bytes = $file.Length
-              sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-              machine = if ($versionInfo.FileVersion) { $versionInfo.FileVersion } else { $null }
-              product_name = $versionInfo.ProductName
-              file_description = $versionInfo.FileDescription
-              company_name = $versionInfo.CompanyName
+          $report = [ordered]@{status='started'; installer_executed=$false}
+          try {
+            & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 240 --max-filesize 629145600 --output $package $url
+            if ($LASTEXITCODE -ne 0) { throw "curl failed with exit code $LASTEXITCODE" }
+            $hash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
+            $size = (Get-Item -LiteralPath $package).Length
+            $report.package_sha256 = $hash
+            $report.package_size_bytes = $size
+            if ($hash -ne $expected) { throw 'SHA-256 mismatch; extraction blocked' }
+            if ($size -ne 365484183) { throw 'Unexpected package size; extraction blocked' }
+            $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
+            if (!(Test-Path -LiteralPath $sevenZip)) { throw "7-Zip not found at $sevenZip" }
+            $extractDir = Join-Path $PWD 'extracted'
+            $log = & $sevenZip x -y "-o$extractDir" -- $package 2>&1
+            $exit = $LASTEXITCODE
+            $log | Out-File -FilePath evidence/extraction-log.txt -Encoding utf8
+            $report.seven_zip_exit_code = $exit
+            if ($exit -ne 0) { throw "7-Zip extraction failed with exit code $exit" }
+            $report.extraction_completed = $true
+            $files = @(Get-ChildItem -LiteralPath $extractDir -Recurse -File | Where-Object { $_.Extension -in '.exe','.dll' } | Select-Object -First 200)
+            $report.binary_count_inspected = $files.Count
+            $entries = foreach ($file in $files) {
+              $relative = [IO.Path]::GetRelativePath($extractDir, $file.FullName)
+              $vi = $file.VersionInfo
+              [ordered]@{
+                path = $relative
+                size_bytes = $file.Length
+                sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+                file_version = $vi.FileVersion
+                product_name = $vi.ProductName
+                file_description = $vi.FileDescription
+                company_name = $vi.CompanyName
+              }
             }
+            $report.files = $entries
+            $report.status = 'static_extraction_completed_not_execution_approved'
+            $report | ConvertTo-Json -Depth 8 | Set-Content evidence/static-extraction-report.json -Encoding utf8
+            $entries | ConvertTo-Json -Depth 8 | Set-Content evidence/binary-metadata.json -Encoding utf8
+          } catch {
+            $report.status = 'failed'
+            $report.error = $_.Exception.Message
+            $report.error_type = $_.Exception.GetType().FullName
+            $report | ConvertTo-Json -Depth 8 | Set-Content evidence/static-extraction-report.json -Encoding utf8
+            $_ | Out-String | Set-Content evidence/error.txt -Encoding utf8
+            throw
+          } finally {
+            if (Test-Path -LiteralPath $package) { Remove-Item -LiteralPath $package -Force -ErrorAction SilentlyContinue }
+            if (Test-Path -LiteralPath extracted) { Remove-Item -Recurse -Force extracted -ErrorAction SilentlyContinue }
           }
-          $report | ConvertTo-Json -Depth 6 | Set-Content evidence/static-extraction-report.json -Encoding utf8
-          $report.files | ConvertTo-Json -Depth 6 | Set-Content evidence/binary-metadata.json -Encoding utf8
-          Remove-Item -LiteralPath $package -Force
-          Remove-Item -Recurse -Force extracted
       - name: Upload inspection evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ardour-static-extraction
           path: evidence/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 14
