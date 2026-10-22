@@ -1,0 +1,89 @@
+name: Acquire Ardour test package
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/acquire-ardour-test.yml']
+permissions:
+  contents: read
+jobs:
+  acquire:
+    runs-on: windows-2022
+    timeout-minutes: 10
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download and inspect without execution
+        shell: python
+        run: |
+          import datetime, hashlib, json, os, struct
+          from pathlib import Path
+          from urllib.parse import urlparse
+          from urllib.request import Request, build_opener, HTTPRedirectHandler
+          url = 'https://nightly.ardour.org/d/A_WIN_x86_64_FREE_DBG/Ardour-9.8.230-demo-dbg-w64-Setup.exe'
+          evidence = Path('evidence')
+          evidence.mkdir(exist_ok=True)
+          package = Path(os.environ['RUNNER_TEMP']) / 'aurora-ardour-test-download.part'
+          redirects = []
+          class OfficialOnly(HTTPRedirectHandler):
+              def redirect_request(self, req, fp, code, msg, headers, newurl):
+                  p = urlparse(newurl)
+                  if p.scheme != 'https' or p.hostname != 'nightly.ardour.org' or p.username or p.password or p.port not in (None, 443):
+                      raise RuntimeError('Redirect outside approved origin blocked')
+                  redirects.append({'from': req.full_url, 'to': newurl, 'status': code})
+                  return super().redirect_request(req, fp, code, msg, headers, newurl)
+          report = {'requested_url': url, 'utc': datetime.datetime.now(datetime.timezone.utc).isoformat(), 'redirects': redirects, 'status': 'started', 'executed': False, 'redistributed': False, 'trusted_expected_sha256': None, 'limitation': 'Locally computed hash and PE markers are not authenticity, malware or functional validation.'}
+          try:
+              digest = hashlib.sha256()
+              total = 0
+              limit = 600 * 1024 * 1024
+              with build_opener(OfficialOnly()).open(Request(url, headers={'User-Agent': 'AURORA-test-acquisition/0.1'}), timeout=60) as response:
+                  report['final_url'] = response.url
+                  report['content_type'] = response.headers.get('Content-Type')
+                  declared = response.headers.get('Content-Length')
+                  report['content_length'] = declared
+                  if declared and int(declared) > limit:
+                      raise RuntimeError('Declared size exceeds limit')
+                  with package.open('wb') as stream:
+                      while True:
+                          chunk = response.read(1024 * 1024)
+                          if not chunk:
+                              break
+                          total += len(chunk)
+                          if total > limit:
+                              raise RuntimeError('Download exceeds size limit')
+                          stream.write(chunk)
+                          digest.update(chunk)
+                  if declared and total != int(declared):
+                      raise RuntimeError('Content length mismatch')
+              report.update({'size_bytes': total, 'computed_sha256': digest.hexdigest()})
+              with package.open('rb') as stream:
+                  header = stream.read(64)
+                  if len(header) != 64 or header[:2] != b'MZ':
+                      raise RuntimeError('Missing executable header')
+                  offset = struct.unpack_from('<I', header, 60)[0]
+                  if offset < 64 or offset + 6 > total:
+                      raise RuntimeError('Invalid PE header offset')
+                  stream.seek(offset)
+                  if stream.read(4) != b'PE\x00\x00':
+                      raise RuntimeError('Missing PE marker')
+                  report['pe_machine_hex'] = hex(struct.unpack('<H', stream.read(2))[0])
+              report['status'] = 'downloaded_and_structurally_inspected_not_trusted_or_executed'
+          except Exception as error:
+              report.update({'status': 'failed', 'error': str(error)})
+              raise
+          finally:
+              package.unlink(missing_ok=True)
+              text = json.dumps(report, ensure_ascii=False, indent=2)
+              (evidence / 'acquisition.json').write_text(text, encoding='utf-8')
+              with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as summary:
+                  summary.write('## Ardour test acquisition\n\n```json\n' + text + '\n```\n')
+      - name: Preserve report only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ardour-test-acquisition-report
+          path: evidence/
+          if-no-files-found: error
+          retention-days: 14
