@@ -1,0 +1,15 @@
+{
+  "url": "https://nightly.ardour.org/d/A_WIN_x86_64_FREE_DBG/Ardour-9.8.230-demo-dbg-w64-Setup.exe",
+  "expected_sha256": "12331c428d78c06e02e0d08ab11526bc7c54777f2da1a5548974b4d210ac11e1",
+  "expected_hash_origin": "Previous acquisition reported by user; not an independently authenticated publisher hash",
+  "status": "static_inspection_completed_not_execution_approved",
+  "installer_executed": false,
+  "payload_extracted": false,
+  "actual_sha256": "12331c428d78c06e02e0d08ab11526bc7c54777f2da1a5548974b4d210ac11e1",
+  "size_bytes": 365484183,
+  "authenticode_status": "NotSigned",
+  "signer_subject": null,
+  "signature_status_message": "The file D:\\a\\_temp\\aurora-ardour-inspection.exe is not digitally signed. You cannot run this script on the current system. For more information about running scripts and setting execution policy, see about_Execution_Policies at https://go.microsoft.com/fwlink/?LinkID=135170",
+  "inspector_version": "26.04",
+  "archive_listing_exit_code": 0
+}
