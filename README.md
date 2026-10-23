@@ -1,15 +1,31 @@
-# AURORA Studio
+# Aurora Studio
 
-Projeto de aplicativo Windows para produção musical com Cockpit próprio em C++/Qt, Ollama local, Ardour, ACE-Step e Demucs.
+Estúdio musical local para Windows controlado por linguagem natural.
 
-## Estado real
+- Escreva um prompt (ex.: "crie uma balada em Ré menor com piano, bateria e baixo, 80 BPM").
+- O Aurora Studio usa o Ollama local para interpretar o pedido.
+- O motor musical gera arquivos MIDI (bateria, baixo, acordes, melodia).
+- O Aurora abre o Ardour para edição profissional completa com mouse.
+- A ponte OSC controla transporte (play/stop) no Ardour.
 
-Fundação de desenvolvimento. O código atual cria uma janela inicial com módulos desabilitados e implementa um teste automático de abertura. O workflow compila e testa no Windows; seu resultado deve ser consultado antes de declarar validação. Não há geração musical, separação de stems, controle do Ardour, instalação automática nem instalador distribuível nesta etapa.
+## Requisitos
+- Windows 10/11
+- Python 3.11+
+- Ollama instalado (https://ollama.com/download)
+- Ardour instalado (https://ardour.org/download.html)
 
-## Contrato
+## Instalação
+1. Dê dois cliques em `install_aurora.bat`.
+2. Aguarde a mensagem "Aurora Studio pronto".
+3. Dê dois cliques em `run_aurora.bat`.
 
-Leia AGENTS.md antes de qualquer alteração. Suas regras prevalecem sobre promessas técnicas não verificadas dos documentos históricos em docs/ARQUITETURA.md e docs/ESTRUTURA.md. Esses documentos descrevem intenção, não capacidades entregues. Instalação, APIs, versões, licenças, sincronização e compatibilidade dos motores precisam de validação antes de serem congeladas como especificação de distribuição.
+## Uso
+1. Abra o Aurora Studio.
+2. Escreva o prompt musical.
+3. Clique em "Gerar música".
+4. Clique em "Abrir no Ardour".
+5. Edite livremente no Ardour com o mouse.
 
-## Usuário final
-
-Não executar fontes nem comandos para montar o aplicativo. O objetivo final é entrega por instalador Windows com launcher. Nenhum pacote final está disponível nesta etapa.
+## Limitações da v0.1
+- Gera MIDI; áudio/síntese e criação automática de sessão .ardour virão nas próximas versões.
+- Requer Ollama e Ardour já instalados.
