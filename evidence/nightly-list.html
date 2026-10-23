@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title>Ardour - Nightly Builds</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta name="Author" content="Robin Gareus" />
+  <meta name="description" content="Nightly Builds for ardour.org" />
+  <meta name="keywords" content="Ardour, Workstation, Digital Audio Workstation, Linux, Audio, JACK" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/static/style.css" type="text/css"/>
+  <link rel="shortcut icon" href="/static/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/static/favicon.ico" type="image/x-icon" />
+    </head>
+  <body>
+		<div id="header"><div id="nav">
+			<div class="logo"><a href="http://ardour.org"><img alt="ardour" src="/static/ardour_logo_navbar.png"/></a></div>
+			<div class="link"><a href="/">Nightlies</a></div>
+			<div class="link"><a href="http://ardour.org/download">Download</a></div>
+			<div class="link"><a href="http://tracker.ardour.org/">Bug Tracker</a></div>
+			<div class="link"><a href="http://community.ardour.org/">Community</a></div>
+    </div></div>
+		<div class="clearer"></div>
+    <div id="content">
+      <div id="box">
+        <div id="ardour">
+          <h1>Ardour <span class="strike" title="(we really mean) Nychthemeral">Nightly</span> Builds</h1>
+
+<p class="center"><a class="anchor" id="top"></a>There is <strong>no support</strong> whatsoever for these builds.<br/>See <a href="http://ardour.org/download">ardour.org</a> for official releases.</p>
+          <p>&nbsp;</p>
+          </div><div id="main">
+
+<p class="center">
+<a href="#linux"><img title="Linux" alt="Linux" src="static/lin.png" class="os"/></a>
+<a href="#osx"><img title="Mac/OSX" alt="Mac/OSX" src="static/mac.png" class="os"/></a>
+<a href="#windows"><img title="MS/Windows" alt="MS/Windows" src="static/win.png" class="os"/></a>
+<a href="#clang_analyzer"><img title="Static Analysis" alt="Static Analysis" src="static/llvm.png" class="os"/></a>
+<a href="#build_deps"><img title="Build Dependencies" alt="Build Dependencies" src="static/code.png" class="os"/></a>
+</p>
+<p>&nbsp;</p>
+<p>
+These are automatic builds of the Ardour Digital Audio Workstation (latest git developer version) intended for testing only.
+They are created every 24 hours, usually in the early morning UTC but the actual time varies.
+See <a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commits/master">Ardour Git Log</a> for recent changes.
+</p>
+<p>Full-featured (non-free) versions are provided as service to
+<a rel="external" onclick="this.target='_blank';" href="https://community.ardour.org/s/subscribe">subscribers</a>.
+Use your ardour.org credentials to identify yourself for download.
+</p>
+
+<table style="width:100%">
+
+<tr><td colspan="5"><h2><a class="anchor" id="linux"></a>GNU/Linux</h2><div class="up"><a href="#top">&#8593;</a></div></tr>
+<tr><td colspan="5"><p>Linux builds are compatible with any platform GNU/Linux releases since circa 2016 (glibc &ge; 3.4.21).
+	Builds are available for 64bit Intel systems, as well as 64bit ARM (Raspberry Pi 4 and later) systems.
+	Requires X11.<br/><br/>Download the .run installer and launch it.<br/>One way to accomplish this is in a terminal:
+	<span class="mono">sh Ardour_&lt;<em>version</em>&gt;.run</span> (substitute <em>version</em>).<br/> 
+	The alternative is to use a file-browser, right-click on the downloaded file, select properties, checkbox: allow execution.
+	Then double-click to run the installer [<a rel="external" onclick="this.target='_blank';" href="http://ardour.org/first_time_linux.html">first time linux README</a>].<br/><br/>
+	Linux versions can be installed in parallel including alongside distribution packages. They are installed to
+	<span class="mono">/opt/Ardour-<em>version</em>/</span> (<em>Note</em>: The installer will ask to run an uninstaller, answer "no" if you wish to keep older versions alongside the new one ).</p></td></tr>
+
+<tr><td colspan="5"><h3>Linux 64bit</h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 06:30:30 UTC
+</td>
+<td class="right"><a href="i/A_Linux_x86_64/Ardour-9.8.236-x86_64.run.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64/Ardour-9.8.236-x86_64.run.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_Linux_x86_64/Ardour-9.8.236-x86_64.run">Ardour-9.8.236-x86_64.run</a></td><td class="right">76.48 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Linux 64bit Free <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 06:48:42 UTC
+</td>
+<td class="right"><a href="i/A_Linux_x86_64_FREE/Ardour-9.8.236-demo-x86_64.run.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE/Ardour-9.8.236-demo-x86_64.run.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_Linux_x86_64_FREE/Ardour-9.8.236-demo-x86_64.run">Ardour-9.8.236-demo-x86_64.run</a></td><td class="right">76.51 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Linux 64bit Debug <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 07:00:53 UTC
+</td>
+<td class="right"><a href="i/A_Linux_x86_64_DBG/Ardour-9.8.236-dbg-x86_64.run.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_DBG/Ardour-9.8.236-dbg-x86_64.run.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_DBG/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_DBG/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_Linux_x86_64_DBG/Ardour-9.8.236-dbg-x86_64.run">Ardour-9.8.236-dbg-x86_64.run</a></td><td class="right">212.09 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Linux 64bit Free+Debug <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a> <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 07:28:47 UTC
+</td>
+<td class="right"><a href="i/A_Linux_x86_64_FREE_DBG/Ardour-9.8.236-demo-dbg-x86_64.run.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE_DBG/Ardour-9.8.236-demo-dbg-x86_64.run.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE_DBG/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE_DBG/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_Linux_x86_64_FREE_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_Linux_x86_64_FREE_DBG/Ardour-9.8.236-demo-dbg-x86_64.run">Ardour-9.8.236-demo-dbg-x86_64.run</a></td><td class="right">212.00 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Linux ARM64</h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 05:08:15 UTC
+</td>
+<td class="right"><a href="i/A_Linux_arm64/Ardour-9.8.236-arm64.run.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64/Ardour-9.8.236-arm64.run.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_Linux_arm64/Ardour-9.8.236-arm64.run">Ardour-9.8.236-arm64.run</a></td><td class="right">52.17 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Linux ARM64 Free <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 05:19:03 UTC
+</td>
+<td class="right"><a href="i/A_Linux_arm64_FREE/Ardour-9.8.236-demo-arm64.run.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64_FREE/Ardour-9.8.236-demo-arm64.run.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64_FREE/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64_FREE/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_Linux_arm64_FREE/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_Linux_arm64_FREE/Ardour-9.8.236-demo-arm64.run">Ardour-9.8.236-demo-arm64.run</a></td><td class="right">52.22 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+
+<tr><td colspan="5"><br/><br/><h2><a class="anchor" id="osx"></a>MacOS</h2><div class="up"><a href="#top">&#8593;</a></div></td></tr>
+<tr><td colspan="5"><p>MacOS Intel builds are compatible with &ge; 10.13 (High Sierra and later), ARM64/M1 builds require &ge; macOS 11.0 (BigSur or later).<br/>Simply drag the <em>Ardour.app</em> and the video monitor <em>Jadeo.app</em> to the /Applications folder</p></td></tr>
+
+<tr><td colspan="5"><h3>macOS Intel</h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 07:54:49 UTC
+</td>
+<td class="right"><a href="i/A_MAC_x86_64/Ardour-9.8.236-x86_64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64/Ardour-9.8.236-x86_64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_MAC_x86_64/Ardour-9.8.236-x86_64.dmg">Ardour-9.8.236-x86_64.dmg</a></td><td class="right">104.25 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS Intel Debug <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 09:38:34 UTC
+</td>
+<td class="right"><a href="i/A_MAC_x86_64_DBG/Ardour-9.8.236-dbg-x86_64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_DBG/Ardour-9.8.236-dbg-x86_64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_DBG/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_DBG/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_MAC_x86_64_DBG/Ardour-9.8.236-dbg-x86_64.dmg">Ardour-9.8.236-dbg-x86_64.dmg</a></td><td class="right">615.92 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS Intel Free <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 09:05:03 UTC
+</td>
+<td class="right"><a href="i/A_MAC_x86_64_FREE/Ardour-9.8.236-demo-x86_64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE/Ardour-9.8.236-demo-x86_64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_MAC_x86_64_FREE/Ardour-9.8.236-demo-x86_64.dmg">Ardour-9.8.236-demo-x86_64.dmg</a></td><td class="right">104.24 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS Intel Free+Debug <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a> <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 11:45:50 UTC
+</td>
+<td class="right"><a href="i/A_MAC_x86_64_FREE_DBG/Ardour-9.8.236-demo-dbg-x86_64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE_DBG/Ardour-9.8.236-demo-dbg-x86_64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE_DBG/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE_DBG/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_x86_64_FREE_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_MAC_x86_64_FREE_DBG/Ardour-9.8.236-demo-dbg-x86_64.dmg">Ardour-9.8.236-demo-dbg-x86_64.dmg</a></td><td class="right">615.91 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS ARM64</h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 07:54:42 UTC
+</td>
+<td class="right"><a href="i/A_MAC_arm64/Ardour-9.8.236-arm64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64/Ardour-9.8.236-arm64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_MAC_arm64/Ardour-9.8.236-arm64.dmg">Ardour-9.8.236-arm64.dmg</a></td><td class="right">100.75 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS ARM64 Debug <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 09:39:31 UTC
+</td>
+<td class="right"><a href="i/A_MAC_arm64_DBG/Ardour-9.8.236-dbg-arm64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_DBG/Ardour-9.8.236-dbg-arm64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_DBG/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_DBG/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3"><a href="https://nightly.ardour.org/d/A_MAC_arm64_DBG/Ardour-9.8.236-dbg-arm64.dmg">Ardour-9.8.236-dbg-arm64.dmg</a></td><td class="right">629.18 MiB</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS ARM64 Free <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 09:05:15 UTC
+</td>
+<td class="right"><a href="i/A_MAC_arm64_FREE/Ardour-9.8.236-demo-arm64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE/Ardour-9.8.236-demo-arm64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_MAC_arm64_FREE/Ardour-9.8.236-demo-arm64.dmg">Ardour-9.8.236-demo-arm64.dmg</a></td><td class="right">100.77 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>macOS ARM64 Free+Debug <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a> <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="ok">OK</td>
+<th>Date:</th><td>2026-10-22 11:48:04 UTC
+</td>
+<td class="right"><a href="i/A_MAC_arm64_FREE_DBG/Ardour-9.8.236-demo-dbg-arm64.dmg.md5sum">MD5</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE_DBG/Ardour-9.8.236-demo-dbg-arm64.dmg.sha1sum">SHA1</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE_DBG/info.txt">Host&nbsp;Info</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE_DBG/file_list.txt">Contents</a> &nbsp;|&nbsp;<a href="i/A_MAC_arm64_FREE_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3"><a href="d/A_MAC_arm64_FREE_DBG/Ardour-9.8.236-demo-dbg-arm64.dmg">Ardour-9.8.236-demo-dbg-arm64.dmg</a></td><td class="right">629.15 MiB</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+
+<tr><td colspan="5"><br/><br/><h2><a class="anchor" id="windows"></a>MS/Windows</h2><div class="up"><a href="#top">&#8593;</a></div></td></tr>
+<tr><td colspan="5"><p>Compatible with Windows 7 and any later version.<br/>The Windows installer will replace the current version.<br/>
+	<em>Note</em>: The application is not digitally signed. If you are running Windows 11 and receive a message about "Ardour is not commonly downloaded", please read <a rel="external" onclick="this.target='_blank';" href="https://ardour.org/windows_defender.html">these instructions</a>.<br/>
+	<em>Note</em>: If Ardour did not exit cleanly, uninstalling or replacing an existing installation will
+	fail to replace font-files included with ardour. You can ignore this or fix it by rebooting the system.<br/>
+	<br/></p></td></tr>
+
+<tr><td colspan="5"><h3>Win 64bit</h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="error">Failed</td>
+<th>Date:</th><td>2026-10-22 05:02:59 UTC
+</td>
+<td class="right"><a href="i/A_WIN_x86_64/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3" class="warn">N/A</td><td class="right">&nbsp;</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Win 64bit Debug <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr class="nonfree"><th>Status:</th><td class="error">Failed</td>
+<th>Date:</th><td>2026-10-22 05:06:42 UTC
+</td>
+<td class="right"><a href="i/A_WIN_x86_64_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr class="nonfree"><th>File:</th><td colspan="3" class="warn">N/A</td><td class="right">&nbsp;</td></tr>
+<tr class="nonfree"><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Win 64bit Free <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="error">Failed</td>
+<th>Date:</th><td>2026-10-22 05:04:27 UTC
+</td>
+<td class="right"><a href="i/A_WIN_x86_64_FREE/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3" class="warn">N/A</td><td class="right">&nbsp;</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+<tr><td colspan="5"><h3>Win 64bit Free+Debug <a class="super" href="#freebie"><abbr title="Free Demo">&#x266d;</abbr></a> <a class="super" href="#debug"><abbr title="Debug Version">&#x266f;</abbr></a></h3></td></tr>
+<tr><th>Status:</th><td class="error">Failed</td>
+<th>Date:</th><td>2026-10-22 05:05:24 UTC
+</td>
+<td class="right"><a href="i/A_WIN_x86_64_FREE_DBG/build_log.txt">Build&nbsp;Log</a></td></tr>
+<tr><th>File:</th><td colspan="3" class="warn">N/A</td><td class="right">&nbsp;</td></tr>
+<tr><th>Git:</th><td colspan="3"><span>9.8-236-gb896344c8d
+</span></td><td class="right"><a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/commit/b896344c8d16f89e04a235562ab31594605c6715
+">b896344..</a></td></tr>
+<tr><td colspan="5"><hr/></tr>
+
+</table>
+
+<p>&nbsp;</p>
+
+<p class="note"><a id="freebie" class="anchor"></a>&#x266d; <strong>Free/Demo</strong> (gratis) Version - fully featured except it will periodically go silent. Builds without that restriction are available to
+<a rel="external" onclick="this.target='_blank';" href="https://community.ardour.org/s/subscribe">subscribers</a>.</p>
+<p class="note"><a id="debug" class="anchor"></a>&#x266f; <strong>Debug</strong> Version - Includes debug-symbols suitable for creating proper bug-reports (GNU/Linux, Windows: gdb backtrace; OSX: crash reports; <em>Note: the Windows installer includes gdb</em>). See <a rel="external" onclick="this.target='_blank';" href="http://ardour.org/debugging_ardour">Debugging Ardour</a> for more information.</p>
+
+<p>&nbsp;</p>
+
+<p>&nbsp;</p>
+<h2><a id="clang_analyzer" class="anchor"></a>Static Analysis</h2>
+<div class="up"><a href="#top">&#8593;</a></div>
+<p>Clang/LLVM static analysis. Take with a grain of salt.</p>
+<table style="width:100%"><tr><th>Date:</th><td>2026-01-11 21:18:06 UTC
+</td><th>Git:</th><td>9.0-rc2-96-ge381c29281
+</td></tr><tr><th></th><td><a href="A_Linux_x86_64_SCAN/2026-01-11-211822-1759612-1/">Scan&nbsp;Build Results</a></td><th></th><td><a href="i/A_Linux_x86_64_SCAN/analyze_log.txt">Build&nbsp;Log</a> (504.86 KiB)</td></tr></table><p>&nbsp;</p>
+<h2><a id="build_deps" class="anchor"></a>Build Dependencies</h2>
+<div class="up"><a href="#top">&#8593;</a></div>
+<p>The Ardour binaries were created with the following stack:</p>
+<ul class="multicolumn">
+<li><a href="http://aubio.org/pub/aubio-0.3.2.tar.gz">aubio 0.3.2</a></li>
+<li><a href="http://ftpmirror.gnu.org/autoconf/autoconf-2.69.tar.xz">autoconf 2.69</a></li>
+<li><a href="http://ftpmirror.gnu.org/automake/automake-1.14.1.tar.gz">automake 1.14.1</a></li>
+<li><a href="http://ftpmirror.gnu.org/bison/bison-3.0.tar.xz">bison 3.0</a></li>
+<li><a href="http://sourceforge.net/projects/boost/files/boost/1.68.0/boost_1_68_0.tar.bz2">boost 1.68.0</a></li>
+<li><a href="http://cairographics.org/releases/cairo-1.16.0.tar.xz">cairo 1.16.0</a></li>
+<li><a href="http://cairographics.org/releases/cairomm-1.12.2.tar.gz">cairomm 1.12.2</a></li>
+<li><a href="http://www.cmake.org/files/v2.8/cmake-2.8.12.2.tar.gz">cmake 2.8.12.2</a></li>
+<li><a href="http://www.cmake.org/files/v3.31/cmake-3.31.9.tar.gz">cmake 3.31.9 (macOS)</a></li>
+<li><a href="http://dev-www.libreoffice.org/src/cppunit-1.13.2.tar.gz">cppunit 1.13.2</a></li>
+<li><a href="https://curl.haxx.se/download/curl-7.66.0.tar.xz">curl 7.66.0</a></li>
+<li><a href="https://downloads.sourceforge.net/project/expat/expat/2.8.1/expat-2.8.1.tar.xz">expat 2.8.1</a></li>
+<li><a href="http://fftw.org/fftw-3.3.8.tar.gz">fftw 3.3.8</a></li>
+<li><a href="http://downloads.xiph.org/releases/flac/flac-1.3.2.tar.xz">flac 1.3.2</a></li>
+<li><a href="http://ardour.org/files/deps/flex-2.5.35.tar.gz">flex 2.5.35</a></li>
+<li><a href="http://www.freedesktop.org/software/fontconfig/release/fontconfig-2.13.1.tar.bz2">fontconfig 2.13.1</a></li>
+<li><a href="http://downloads.sourceforge.net/project/freetype/freetype2/2.9/freetype-2.9.tar.bz2">freetype 2.9</a></li>
+<li><a href="https://github.com/fribidi/fribidi/releases/download/v1.0.9/fribidi-1.0.9.tar.xz">fribidi 1.0.9</a></li>
+<li><a href="http://ftpmirror.gnu.org/gettext/gettext-0.21.tar.gz">gettext 0.21</a></li>
+<li><a href="https://download.gnome.org/sources/glib/2.56/glib-2.56.4.tar.xz">glib 2.56.4</a></li>
+<li><a href="https://download.gnome.org/sources/glibmm/2.56/glibmm-2.56.1.tar.xz">glibmm 2.56.1</a></li>
+<li><a href="https://download.gnome.org/sources/gnome-common/2.34/gnome-common-2.34.0.tar.bz2">gnome-common 2.34.0</a></li>
+<li><a href="https://download.gnome.org/sources/gnome-doc-utils/0.20/gnome-doc-utils-0.20.10.tar.xz">gnome-doc-utils 0.20.10</a></li>
+<li><a href="http://ftp.gnome.org/pub/GNOME/sources/gobject-introspection/1.38/gobject-introspection-1.38.0.tar.xz">gobject-introspection 1.38.0</a></li>
+<li><a href="https://www.freedesktop.org/software/harfbuzz/release/harfbuzz-2.6.7.tar.xz">harfbuzz 2.6.7</a></li>
+<li><a href="http://launchpad.net/intltool/trunk/0.50.2/+download/intltool-0.50.2.tar.gz">intltool 0.50.2</a></li>
+<li><a href="http://files.itstool.org/itstool/itstool-2.0.7.tar.bz2">itstool 2.0.7</a></li>
+<li><a href="http://www.ijg.org/files/jpegsrc.v9a.tar.gz">jpegsrc.v9a</a></li>
+<li><a href="http://www.libarchive.org/downloads/libarchive-3.6.1.tar.gz">libarchive 3.6.1</a></li>
+<li><a href="https://github.com/libffi/libffi/releases/download/v3.5.2/libffi-3.5.2.tar.gz">libffi 3.5.2</a></li>
+<li><a href="https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.16.tar.gz">libiconv 1.16</a></li>
+<li><a href="http://downloads.sourceforge.net/liblo/liblo-0.28.tar.gz">liblo 0.28</a></li>
+<li><a href="http://downloads.xiph.org/releases/ogg/libogg-1.3.2.tar.xz">libogg 1.3.2</a></li>
+<li><a href="https://downloads.sourceforge.net/project/libpng/libpng16/1.6.50/libpng-1.6.50.tar.xz">libpng 1.6.50</a></li>
+<li><a href="http://www.mega-nerd.com/SRC/libsamplerate-0.1.9.tar.gz">libsamplerate 0.1.9</a></li>
+<li><a href="http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.10/libsigc++-2.10.2.tar.xz">libsigc++ 2.10.2</a></li>
+<li><a href="http://ardour.org/files/deps/libsndfile-1.1.0-41-gd8503a66.tar.xz">libsndfile 1.1.0-41</a></li>
+<li><a href="http://ftp.gnu.org/gnu/libtool/libtool-2.4.7.tar.gz">libtool 2.4.7</a></li>
+<li><a href="http://downloads.sourceforge.net/project/libusb/libusb-1.0/libusb-1.0.20/libusb-1.0.20.tar.bz2">libusb 1.0.20</a></li>
+<li><a href="http://downloads.xiph.org/releases/vorbis/libvorbis-1.3.4.tar.xz">libvorbis 1.3.4</a></li>
+<li><a href="http://ardour.org/files/deps/libwebsockets-4.3.0-14.tar.gz">libwebsockets 4.3.0-14</a></li>
+<li><a href="https://download.gnome.org/sources/libxml2/2.9/libxml2-2.9.14.tar.xz">libxml2 2.9.14</a></li>
+<li><a href="https://download.gnome.org/sources/libxslt/1.1/libxslt-1.1.43.tar.xz">libxslt 1.1.43</a></li>
+<li><a href="http://ardour.org/files/deps/lilv-0.24.13-g71a2ff5.tar.bz2">lilv 0.24.13</a></li>
+<li><a href="https://github.com/x42/LRDF/archive/0.5.3-rg.tar.gz">LRDF 0.5.3-rg</a></li>
+<li><a href="http://ardour.org/files/deps/lv2-1.18.2-g611759d.tar.bz2">lv2 1.18.2</a></li>
+<li><a href="http://sourceforge.net/projects/mingw/files/Other/UserContributed/regex/mingw-regex-2.5.1/mingw-libgnurx-2.5.1-src.tar.gz">libgnurx 2.5.1 (Windows)</a></li>
+<li><a href="http://ftpmirror.gnu.org/m4/m4-1.4.18.tar.bz2">m4 1.4.18</a></li>
+<li><a href="http://ftp.gnu.org/gnu/make/make-4.4.tar.gz">make 4.4</a></li>
+<li><a href="https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_45_RTM/src/nss-3.45-with-nspr-4.21.tar.gz">NSS-3.45 (Linux, macOS)</a></li>
+<li><a href="http://ardour.org/files/deps/nss-pem-1.0.2.tar.xz">NSS-PEM (Linux)</a></li>
+<li><a href="https://archive.mozilla.org/pub/opus/opus-1.3.1.tar.gz">opus 1.3.1</a></li>
+<li><a href="http://ftp.gnome.org/pub/GNOME/sources/pango/1.42/pango-1.42.4.tar.xz">pango 1.42.4</a></li>
+<li><a href="https://download.gnome.org/sources/pangomm/2.42/pangomm-2.42.0.tar.xz">pangomm 2.42.0</a></li>
+<li><a href="http://downloads.sourceforge.net/project/pcre/pcre/8.36/pcre-8.36.tar.bz2">pcre 8.36</a></li>
+<li><a href="http://www.cairographics.org/releases/pixman-0.42.2.tar.gz">pixman 0.42.2</a></li>
+<li><a href="http://pkgconfig.freedesktop.org/releases/pkg-config-0.29.2.tar.gz">pkg-config 0.29.2</a></li>
+<li><a href="http://ardour.org/files/deps/portaudio-svn1963.tgz">portaudio svn rev1963 (Windows)</a></li>
+<li><a href="http://download.librdf.org/source/raptor2-2.0.14.tar.gz">raptor2 2.0.14</a></li>
+<li><a href="http://download.librdf.org/source/rasqal-0.9.32.tar.gz">rasqal 0.9.32</a></li>
+<li><a href="https://github.com/RDFLib/rdflib/archive/4.1.2.tar.gz">rdflib 4.1.2</a></li>
+<li><a href="http://ftpmirror.gnu.org/readline/readline-8.2.tar.gz">readline 8.2</a></li>
+<li><a href="http://download.librdf.org/source/redland-1.0.17.tar.gz">redland 1.0.17</a></li>
+<li><a href="http://breakfastquay.com/files/releases/rubberband-3.3.0.tar.bz2">rubberband 3.3.0</a></li>
+<li><a href="http://ardour.org/files/deps/serd-0.30.11-g36f1cecc.tar.bz2">serd 0.30.11</a></li>
+<li><a href="http://ardour.org/files/deps/sord-0.16.9-gd2efdb2.tar.bz2">sord 0.16.9</a></li>
+<li><a href="http://ardour.org/files/deps/sratom-0.6.8-gc46452c.tar.bz2">sratom 0.6.8</a></li>
+<li><a href="http://taglib.github.io/releases/taglib-1.9.1.tar.gz">taglib 1.9.1</a></li>
+<li><a href="http://ftpmirror.gnu.org/tar/tar-1.27.tar.bz2">tar 1.27</a></li>
+<li><a href="http://ftpmirror.gnu.org/termcap/termcap-1.3.1.tar.gz">termcap 1.3.1</a></li>
+<li><a href="http://download.osgeo.org/libtiff/old/tiff-4.0.3.tar.gz">tiff 4.0.3</a></li>
+<li><a href="http://www.kernel.org/pub/linux/utils/util-linux/v2.38/util-linux-2.38.1.tar.xz">util-linux 2.38.1</a> (Linux, libuuid, libmount)</li>
+<li><a href="http://www.mirrorservice.org/sites/ftp.ossp.org/pkg/lib/uuid/uuid-1.6.2.tar.gz">uuid 1.6.2 (macOS)</a></li>
+<li><a href="http://ardour.org/files/deps/vamp-plugin-sdk-2.9.0.tar.gz">vamp-plugin-sdk 2.9.0</a></li>
+<li><a href="http://tukaani.org/xz/xz-5.2.2.tar.bz2">xz 5.2.2</a></li>
+<li><a href="https://zlib.net/fossils/zlib-1.3.2.tar.gz">zlib 1.3.2</a></li>
+</ul>
+<div class="clearer"></div>
+<p>The Ardour source-code itself is available via <span class="mono">git://git.ardour.org/ardour/ardour.git</span> and can also be found on <a rel="external" onclick="this.target='_blank';" href="https://github.com/Ardour/ardour/">Github</a>.</p>
+<p>&nbsp;</p>
+<h2><a id="license" class="anchor"></a>License</h2>
+<div class="up"><a href="#top">&#8593;</a></div>
+<p>
+Ardour is licensed in terms of the
+<a rel="external" onclick="this.target=\'_blank\';" href="https://www.gnu.org/licenses/gpl-2.0.html">GNU General Public License</a>
+as published by the Free Software Foundation; either version 2, or (at your option) any later version.
+</p>
+<p>
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+</p>
+<p>
+The Windows, Apple and Linux names and logos visible on this site are trademarks or registered trademarks in the USA and other countries, respectively of Microsoft, Inc., Apple, Inc., and Linus Torvalds.
+</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+
