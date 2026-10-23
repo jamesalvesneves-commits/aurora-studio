@@ -1,4 +1,4 @@
-name: Ardour deterministic diagnostics
+name: Ardour nightly security inspection
 on:
   push:
     branches: [main]
@@ -7,110 +7,76 @@ on:
 permissions:
   contents: write
 jobs:
-  diagnostics:
+  inspect-current-nightly:
     runs-on: windows-2022
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Record environment
+      - name: Resolve current Windows x64 installer
+        id: resolve
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force -Path evidence/diagnostic | Out-Null
-          [ordered]@{
-            runner_os = $env:RUNNER_OS
-            powershell = $PSVersionTable.PSVersion.ToString()
-            curl = (& curl.exe --version | Select-Object -First 1)
-            seven_zip = if (Test-Path "$env:ProgramFiles/7-Zip/7z.exe") { (Get-Item "$env:ProgramFiles/7-Zip/7z.exe").VersionInfo.FileVersion } else { 'missing' }
-          } | ConvertTo-Json | Set-Content evidence/diagnostic/01-environment.json -Encoding utf8
-      - name: Commit environment
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add evidence/diagnostic/01-environment.json
-          git diff --cached --quiet || (git commit -m 'Diagnostic: environment' && git push)
-      - name: Download package
+          New-Item -ItemType Directory -Force -Path evidence | Out-Null
+          $list = Invoke-WebRequest -Uri 'https://nightly.ardour.org/list.php' -UseBasicParsing
+          $list.Content | Set-Content evidence/nightly-list.html -Encoding utf8
+          $matches = [regex]::Matches($list.Content, 'href="([^"]*A_WIN_x86_64[^"]*\.exe)"')
+          if ($matches.Count -eq 0) { throw 'No Windows x86_64 installer found' }
+          $href = $matches[$matches.Count - 1].Groups[1].Value
+          $base = [Uri]'https://nightly.ardour.org/'
+          $url = [Uri]::new($base, $href).AbsoluteUri
+          "url=$url" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          [ordered]@{resolved_url=$url; matches=$matches.Count} | ConvertTo-Json | Set-Content evidence/resolution.json -Encoding utf8
+      - name: Download and record identity
         id: download
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-package.exe'
-          $url = 'https://nightly.ardour.org/d/A_WIN_x86_64_FREE_DBG/Ardour-9.8.230-demo-dbg-w64-Setup.exe'
-          $out = & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 240 --max-filesize 629145600 --output $package $url 2>&1
+          $url = '${{ steps.resolve.outputs.url }}'
+          $package = Join-Path $env:RUNNER_TEMP 'ardour-current.exe'
+          $out = & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 300 --output $package $url 2>&1
           $exit = $LASTEXITCODE
-          $out | Set-Content evidence/diagnostic/02-curl-output.txt -Encoding utf8
-          [ordered]@{exit_code=$exit; file_exists=(Test-Path -LiteralPath $package)} | ConvertTo-Json | Set-Content evidence/diagnostic/02-download.json -Encoding utf8
+          $out | Set-Content evidence/download-output.txt -Encoding utf8
           if ($exit -ne 0) { throw "curl failed: $exit" }
-          if (!(Test-Path -LiteralPath $package)) { throw 'package absent' }
-          "package=$package" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-      - name: Commit download result
-        if: always()
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add evidence/diagnostic/02-curl-output.txt evidence/diagnostic/02-download.json
-          git diff --cached --quiet || (git commit -m 'Diagnostic: download' && git push)
-      - name: Verify identity
-        if: steps.download.outcome == 'success'
-        shell: pwsh
-        run: |
-          $ErrorActionPreference = 'Stop'
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-package.exe'
           $hash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
           $size = (Get-Item -LiteralPath $package).Length
           $signature = Get-AuthenticodeSignature -LiteralPath $package
           [ordered]@{
+            url=$url
             sha256=$hash
-            expected_sha256='12331c428d78c06e02e0d08ab11526bc7c54777f2da1a5548974b4d210ac11e1'
-            size=$size
-            expected_size=365484183
-            authenticode=[string]$signature.Status
-            signer=if ($signature.SignerCertificate) { $signature.SignerCertificate.Subject } else { $null }
-          } | ConvertTo-Json | Set-Content evidence/diagnostic/03-identity.json -Encoding utf8
-          if ($hash -ne '12331c428d78c06e02e0d08ab11526bc7c54777f2da1a5548974b4d210ac11e1') { throw 'hash mismatch' }
-          if ($size -ne 365484183) { throw 'size mismatch' }
-      - name: Commit identity
-        if: always()
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add evidence/diagnostic/03-identity.json
-          git diff --cached --quiet || (git commit -m 'Diagnostic: identity' && git push)
-      - name: List archive
-        if: steps.download.outcome == 'success'
+            size_bytes=$size
+            acquired_at_utc=(Get-Date).ToUniversalTime().ToString('o')
+            authenticode_status=[string]$signature.Status
+            signer_subject=if ($signature.SignerCertificate) { $signature.SignerCertificate.Subject } else { $null }
+            installer_executed=$false
+          } | ConvertTo-Json | Set-Content evidence/current-installer-identity.json -Encoding utf8
+          "package=$package" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+      - name: List package
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-package.exe'
+          $package = Join-Path $env:RUNNER_TEMP 'ardour-current.exe'
           $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
           $listing = & $sevenZip l -slt -- $package 2>&1
           $exit = $LASTEXITCODE
-          $listing | Set-Content evidence/diagnostic/04-archive-listing.txt -Encoding utf8
-          [ordered]@{exit_code=$exit} | ConvertTo-Json | Set-Content evidence/diagnostic/04-listing.json -Encoding utf8
+          $listing | Set-Content evidence/archive-listing.txt -Encoding utf8
+          [ordered]@{exit_code=$exit} | ConvertTo-Json | Set-Content evidence/listing.json -Encoding utf8
           if ($exit -ne 0) { throw "listing failed: $exit" }
-      - name: Commit listing
-        if: always()
-        shell: bash
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add evidence/diagnostic/04-archive-listing.txt evidence/diagnostic/04-listing.json
-          git diff --cached --quiet || (git commit -m 'Diagnostic: archive listing' && git push)
       - name: Remove package
         if: always()
         shell: pwsh
         run: |
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-package.exe'
+          $package = Join-Path $env:RUNNER_TEMP 'ardour-current.exe'
           if (Test-Path -LiteralPath $package) { Remove-Item -LiteralPath $package -Force }
-          [ordered]@{installer_executed=$false; extraction_performed=$false; package_removed=$true} | ConvertTo-Json | Set-Content evidence/diagnostic/05-cleanup.json -Encoding utf8
-      - name: Commit cleanup
+          [ordered]@{installer_executed=$false; extraction_performed=$false; package_removed=$true} | ConvertTo-Json | Set-Content evidence/cleanup.json -Encoding utf8
+      - name: Commit evidence
         if: always()
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add evidence/diagnostic/05-cleanup.json
-          git diff --cached --quiet || (git commit -m 'Diagnostic: cleanup' && git push)
+          git add evidence
+          if ! git diff --cached --quiet; then
+            git commit -m 'Record current Ardour nightly inspection evidence'
+            git push
+          fi
