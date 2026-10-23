@@ -1,4 +1,4 @@
-name: Ardour nightly security inspection
+name: Acquire and pin Ardour nightly
 on:
   push:
     branches: [main]
@@ -7,76 +7,90 @@ on:
 permissions:
   contents: write
 jobs:
-  inspect-current-nightly:
+  acquire-and-pin:
     runs-on: windows-2022
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Resolve current Windows x64 installer
-        id: resolve
+      - name: Read official nightly index
+        id: index
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          New-Item -ItemType Directory -Force -Path evidence | Out-Null
-          $list = Invoke-WebRequest -Uri 'https://nightly.ardour.org/list.php' -UseBasicParsing
-          $list.Content | Set-Content evidence/nightly-list.html -Encoding utf8
-          $matches = [regex]::Matches($list.Content, 'href="([^"]*A_WIN_x86_64[^"]*\.exe)"')
-          if ($matches.Count -eq 0) { throw 'No Windows x86_64 installer found' }
-          $href = $matches[$matches.Count - 1].Groups[1].Value
+          New-Item -ItemType Directory -Force -Path evidence, pinned | Out-Null
+          $response = Invoke-WebRequest -Uri 'https://nightly.ardour.org/list.php' -UseBasicParsing
+          $response.Content | Set-Content evidence/nightly-index.html -Encoding utf8
+          $links = [regex]::Matches($response.Content, 'href="([^"]*A_WIN_x86_64[^"]*\.exe)"') |
+            ForEach-Object { $_.Groups[1].Value } | Select-Object -Unique
+          if (-not $links -or $links.Count -eq 0) { throw 'No Windows x86_64 installer links found' }
+          $links | Set-Content evidence/windows-x64-links.txt -Encoding utf8
           $base = [Uri]'https://nightly.ardour.org/'
-          $url = [Uri]::new($base, $href).AbsoluteUri
-          "url=$url" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-          [ordered]@{resolved_url=$url; matches=$matches.Count} | ConvertTo-Json | Set-Content evidence/resolution.json -Encoding utf8
-      - name: Download and record identity
+          $resolved = foreach ($link in $links) { [Uri]::new($base, $link).AbsoluteUri }
+          $resolved | Set-Content evidence/windows-x64-resolved-urls.txt -Encoding utf8
+          $selected = $resolved[-1]
+          "url=$selected" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          [ordered]@{
+            status='resolved'
+            link_count=$links.Count
+            selected_url=$selected
+            selection_rule='last unique Windows x86_64 link in official nightly index'
+          } | ConvertTo-Json | Set-Content evidence/resolution.json -Encoding utf8
+      - name: Download selected installer
         id: download
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $url = '${{ steps.resolve.outputs.url }}'
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-current.exe'
-          $out = & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 300 --output $package $url 2>&1
+          $url = '${{ steps.index.outputs.url }}'
+          $package = Join-Path $env:RUNNER_TEMP 'ardour-nightly.exe'
+          $output = & curl.exe --fail --silent --show-error --proto '=https' --connect-timeout 30 --max-time 300 --output $package $url 2>&1
           $exit = $LASTEXITCODE
-          $out | Set-Content evidence/download-output.txt -Encoding utf8
-          if ($exit -ne 0) { throw "curl failed: $exit" }
+          $output | Set-Content evidence/download-output.txt -Encoding utf8
+          if ($exit -ne 0) { throw "curl failed with exit code $exit" }
+          if (!(Test-Path -LiteralPath $package)) { throw 'Downloaded package is absent' }
           $hash = (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash.ToLowerInvariant()
           $size = (Get-Item -LiteralPath $package).Length
           $signature = Get-AuthenticodeSignature -LiteralPath $package
-          [ordered]@{
-            url=$url
+          $identity = [ordered]@{
+            policy='nightly-fixed'
+            source_index='https://nightly.ardour.org/list.php'
+            installer_url=$url
             sha256=$hash
             size_bytes=$size
             acquired_at_utc=(Get-Date).ToUniversalTime().ToString('o')
             authenticode_status=[string]$signature.Status
             signer_subject=if ($signature.SignerCertificate) { $signature.SignerCertificate.Subject } else { $null }
             installer_executed=$false
-          } | ConvertTo-Json | Set-Content evidence/current-installer-identity.json -Encoding utf8
+            extraction_performed=$false
+          }
+          $identity | ConvertTo-Json -Depth 5 | Set-Content pinned/ardour-nightly.json -Encoding utf8
+          $identity | ConvertTo-Json -Depth 5 | Set-Content evidence/acquisition-identity.json -Encoding utf8
           "package=$package" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
-      - name: List package
+      - name: Verify package can be listed
         shell: pwsh
         run: |
           $ErrorActionPreference = 'Stop'
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-current.exe'
+          $package = Join-Path $env:RUNNER_TEMP 'ardour-nightly.exe'
           $sevenZip = Join-Path $env:ProgramFiles '7-Zip/7z.exe'
           $listing = & $sevenZip l -slt -- $package 2>&1
           $exit = $LASTEXITCODE
           $listing | Set-Content evidence/archive-listing.txt -Encoding utf8
-          [ordered]@{exit_code=$exit} | ConvertTo-Json | Set-Content evidence/listing.json -Encoding utf8
-          if ($exit -ne 0) { throw "listing failed: $exit" }
+          [ordered]@{exit_code=$exit; installer_executed=$false; extraction_performed=$false} | ConvertTo-Json | Set-Content evidence/listing.json -Encoding utf8
+          if ($exit -ne 0) { throw "7-Zip listing failed with exit code $exit" }
       - name: Remove package
         if: always()
         shell: pwsh
         run: |
-          $package = Join-Path $env:RUNNER_TEMP 'ardour-current.exe'
+          $package = Join-Path $env:RUNNER_TEMP 'ardour-nightly.exe'
           if (Test-Path -LiteralPath $package) { Remove-Item -LiteralPath $package -Force }
-          [ordered]@{installer_executed=$false; extraction_performed=$false; package_removed=$true} | ConvertTo-Json | Set-Content evidence/cleanup.json -Encoding utf8
-      - name: Commit evidence
+          [ordered]@{package_removed=$true; installer_executed=$false; extraction_performed=$false} | ConvertTo-Json | Set-Content evidence/cleanup.json -Encoding utf8
+      - name: Commit acquisition and pin
         if: always()
         shell: bash
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add evidence
+          git add evidence pinned
           if ! git diff --cached --quiet; then
-            git commit -m 'Record current Ardour nightly inspection evidence'
+            git commit -m 'Acquire and pin current Ardour nightly installer'
             git push
           fi
